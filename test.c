@@ -5,7 +5,7 @@
 
 int functionSoma(int n, int n2){
     printf("Soma -> n : %d, n2: %d\n", n, n2);
-    sleep(2);
+    sleep(3);
     return n + n2;
 }
 
