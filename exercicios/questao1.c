@@ -26,29 +26,50 @@ void functionProcess(){
     printf("Saindo fork >>>\n");
 } 
 void* functionThread(){
-    printf("Entrou Thread\n");
-    sleep(2);
-    printf("Saindo Thread >>>\n");
+    // printf("Entrou Thread\n");
+    // printf("Saindo Thread >>>\n");
 }
 
 
 int main(void){
-    pthread_t thread;
-    clock_t t, p;
+    pthread_t thread[30];
+    clock_t t, p, f, pp, tp, pf;
+    int n, fork_return, pid_original;
     int r;
-    t = clock();//armazena tempo inicial
-    p = clock();//armazena tempo inicial
-    pthread_create(&thread, NULL, functionThread, NULL);//cria thread
-    pthread_join(thread, NULL);//retorna para main
-    t = clock() - t;//Calcula tempo da thread
-    printf("Tempo execução thread: %ld\n", t);
-    r = fork();//bifurca em dois processos
-    if(r > 0){
-        functionProcess(); //executa em um dos processos a função 2 segundos
-        p = clock() - p;//calcula tempo que o processo termina
-        printf("Time processo: %ld\n", p);
+    //armazena tempo inicial
+    //armazena tempo inicial
+    p = clock();
+    for(int i = 0; i < 30; i++){
+        
+        pthread_create(&thread[i], NULL, functionThread, NULL);//cria thread
+        
+    }
+    t = clock();
+    f = t - p;//Calcula tempo da thread
+    //pthread_join(thread[i], NULL);//retorna para main
+   
+    printf("Tempo execução thread: %lf ms\n", (double)f/(CLOCKS_PER_SEC/1000));
+    //bifurca em dois processos
+    pid_original = getpid(); 
+    pp = clock();
+
+    for (int i = 0; i < 30; i++) {
+        if (pid_original == getpid()) { 
+            //processo original
+            fork();
+
+        }
+    }
+
+    if(pid_original == getpid()){
+        tp = clock();
+        pf = tp - pp;
+        printf("Tempo execução processo: %lf ms\n", (double)pf/(CLOCKS_PER_SEC/1000));
     }
     
+
+
+
     return 0;
 }
 
