@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int functionSoma(int n, int n2){
     printf("Soma -> n : %d, n2: %d\n", n, n2);
