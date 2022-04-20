@@ -58,7 +58,7 @@ void* functionThread(void* i){
     printf("Hello %ld\n", p);
     
 }
-int functionProcesso(int i, int salto_maximo, int pista) {
+void functionProcesso(int i, int salto_maximo, int pista) {
     int distancia_percorrida = 0;
     int salto;
    
@@ -67,21 +67,21 @@ int functionProcesso(int i, int salto_maximo, int pista) {
     {
         salto = rand() % (salto_maximo) + 10;
         distancia_percorrida += salto;
-        printf("Lebre %d -- saltou %dcm \n", i, distancia_percorrida);
+        printf("Lebre %d -- saltou %dcm \n", i, salto);
         sleep(1);
     }
     //printf("Lebre %d venceu\n", i);
-    return i;
+    exit(0);
 }
 
 
 int main(int argc, char *argv[ ]) {
-    int pid_original, pid_return, count = 0;
+    int pid_original, pid_return, pid_original_main, count = 0;
     int number = atoi(argv[2]);
     int pista = atoi(argv[3]);
     int parallelismChoice = 0;
     pthread_t Threads[number];
-    int children_process[number];
+    // int children_process[number];
     int indice = 0;
     int salto_maximo[number];
     int status, indiceLebre;
@@ -89,6 +89,7 @@ int main(int argc, char *argv[ ]) {
     1 -> processo
     2 -> thread
     */
+   pid_original_main = getpid();
     if(strcmp(argv[1], "-p") == 0){
         parallelismChoice = 1;
         printf("Escolheu processo\n");
@@ -121,36 +122,38 @@ int main(int argc, char *argv[ ]) {
             //printf("meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
             pid_return = fork();
             indice = i;
-            children_process[i] = pid_return;
+            //children_process[i] = pid_return;
             
 			
-		} else {
-           // printf("Clone:: meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
-            
 		} 
         
 	} 
     
     
         if(pid_return != 0){
-            functionProcesso(number - 1, salto_maximo[number-1], pista);
+          functionProcesso(number - 1, salto_maximo[number-1], pista);
         }else{
+            sleep(1);
             functionProcesso(indice, salto_maximo[indice], pista);
         }
+        if(getpid() == pid_original_main){
+            printf("Entrou if!!\n");
+
+            wait(&status);
+            printf("Vencedor %d\n", status);
+            kill(0, SIGKILL);
+            //printf("Vencedor -> Lebre %d", indiceLebre);
+    }
+    
+
+        
         
 	    // printf("meu pid: %d, meu ppid: %d\n", 
 		// getpid(), getppid()); 
 
 	    
     }
-
-    if(getpid() == pid_original){
-
-        wait(&status);   
-        printf("Vencedor -> lebre %d\n", WEXITSTATUS(status));
-        kill(0, SIGHUP);
-        return 0;
-    }
+    
 
     return 0;
 
