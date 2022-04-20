@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <pthread.h>
 #include <string.h>
 
@@ -57,7 +58,7 @@ void* functionThread(void* i){
     printf("Hello %ld\n", p);
     
 }
-void functionProcesso(int i, int salto_maximo, int pista) {
+int functionProcesso(int i, int salto_maximo, int pista) {
     int distancia_percorrida = 0;
     int salto;
    
@@ -66,10 +67,11 @@ void functionProcesso(int i, int salto_maximo, int pista) {
     {
         salto = rand() % (salto_maximo) + 10;
         distancia_percorrida += salto;
-        printf("Lebre %d -- saltou %dcm \n", i, salto);
+        printf("Lebre %d -- saltou %dcm \n", i, distancia_percorrida);
         sleep(1);
     }
-    //exit(1);
+    //printf("Lebre %d venceu\n", i);
+    return i;
 }
 
 
@@ -79,9 +81,10 @@ int main(int argc, char *argv[ ]) {
     int pista = atoi(argv[3]);
     int parallelismChoice = 0;
     pthread_t Threads[number];
+    int children_process[number];
     int indice = 0;
     int salto_maximo[number];
-    int status;
+    int status, indiceLebre;
     /*
     1 -> processo
     2 -> thread
@@ -118,6 +121,7 @@ int main(int argc, char *argv[ ]) {
             //printf("meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
             pid_return = fork();
             indice = i;
+            children_process[i] = pid_return;
             
 			
 		} else {
@@ -141,8 +145,10 @@ int main(int argc, char *argv[ ]) {
     }
 
     if(getpid() == pid_original){
-        wait(&status);
-        printf("Staus %d\n", WEXITSTATUS(status));
+
+        wait(&status);   
+        printf("Vencedor -> lebre %d\n", WEXITSTATUS(status));
+        kill(0, SIGHUP);
         return 0;
     }
 
