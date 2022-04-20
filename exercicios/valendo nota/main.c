@@ -43,6 +43,7 @@
 // função (ou seja, tenha a variável que represente o quanto a lebre já percorreu
 // com valor maior ou igual ao tamanho da pista) deverá exibir uma mensagem onde 
 // se declara vencedora e o programa deverá ser finalizado. 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -51,107 +52,122 @@
 #include <pthread.h>
 #include <string.h>
 
+int lebreChegouDestino = 0;
+int pista;
+
+struct arg_struct
+{
+  int indice;
+  int maxSalto;
+};
+
+void* functionThread(void* parametros){
+  struct arg_struct *args = parametros;
+
+  int indice = (int)args->indice;
+
+  int maxSalto = (int)args->maxSalto;
+
+  int distanciaInicial = 0;
 
 
-void* functionThread(void* i){
-    long p = (long)i;
-    printf("Hello %ld\n", p);
+  while (lebreChegouDestino != 1 && distanciaInicial <= pista)
+  {
+
+    int salto = rand() % (maxSalto) + 10;;
+    distanciaInicial += salto;
+    printf("Lebre %d -- saltou %dcm (total %dcm)\n", indice, salto, distanciaInicial);
+    sleep(1);
+
+    if (distanciaInicial >= pista)
+    {
+      lebreChegouDestino = 1;
+      printf("Lebre %d venceu!\n", indice);
+      pthread_exit(NULL);
+    }
+  }
+
+  pthread_exit(NULL);
     
 }
-void functionProcesso(int i, int salto_maximo, int pista) {
+
+void functionProcesso(int i, int salto_maximo) {
     int distancia_percorrida = 0;
     int salto;
-   
+    int tamPista = pista;
 
-    while (distancia_percorrida < pista)
+    while (lebreChegouDestino!=1&&distancia_percorrida <= tamPista)
     {
         salto = rand() % (salto_maximo) + 10;
         distancia_percorrida += salto;
-        printf("Lebre %d -- saltou %dcm \n", i, salto);
+        printf("Lebre %d -- saltou %dcm (total %dcm)\n", i, salto, distancia_percorrida);
         sleep(1);
+
+        if (distancia_percorrida >= tamPista)
+        {
+            lebreChegouDestino = 1;
+            printf("Lebre %d venceu!\n", i);
+            kill(0, SIGKILL);
+            exit(0);
+            
+        }
+
     }
-    //printf("Lebre %d venceu\n", i);
     exit(0);
+    
 }
 
 
 int main(int argc, char *argv[ ]) {
-    int pid_original, pid_return, pid_original_main, count = 0;
-    int number = atoi(argv[2]);
-    int pista = atoi(argv[3]);
-    int parallelismChoice = 0;
-    pthread_t Threads[number];
-    // int children_process[number];
+    int pid_original, pid_return, count = 0;
+    // int number = atoi(argv[2]);
+    int number;
     int indice = 0;
-    int salto_maximo[number];
+    int parallelismChoice = 0;
     int status, indiceLebre;
-    /*
-    1 -> processo
-    2 -> thread
-    */
-   pid_original_main = getpid();
-    if(strcmp(argv[1], "-p") == 0){
-        parallelismChoice = 1;
-        printf("Escolheu processo\n");
-
-    }else if(strcmp(argv[1], "-t") == 0){
-        parallelismChoice = 2;
-        printf("Escolheu thread\n");
-    }
-    pid_original = getpid();
-    printf("numero: %d, pista: %d\n", number, pista);
-
-    if(parallelismChoice == 2){
-        for (long i = 0; i < number; i++) {
-        pthread_create(&Threads[i], NULL, functionThread, (void*)i);
-        }
-    }
-
+    printf("Digite a quantidade de Lebres que irão competir -> ");
+    scanf("%d", &number);
+    printf("Digite o tamanho da pista em cm -> ");
+    scanf("%d", &pista);
+    pthread_t Threads[number];
+    int salto_maximo[number];
     
-    
-    else if(parallelismChoice == 1){
-        //processo
-        for(int j = 0; j < number; j++){
+    // pista = atoi(argv[3]);
+    for(int j = 0; j < number; j++){
             salto_maximo[j] = rand() % 30 + 1;
         }
+    pid_original = getpid();
+    printf("Nº Lebres: %d, Tamanho da Pista: %dcm\n", number, pista);
+
+    if(strcmp(argv[1], "-t") == 0){
+        for (long i = 0; i < number; i++) {
+            struct arg_struct args;
+
+            args.indice = i;
+            args.maxSalto = salto_maximo[i];
+            pthread_create(&Threads[i], NULL, functionThread, (void*)&args);
+        }
+        pthread_join(Threads[number - 1], NULL);
+        return 0;
+    }
+    
+    else if(strcmp(argv[1], "-p") == 0){
+
 
         for (int i = 0; i < number - 1; i++) {
 		if (pid_original == getpid()) { 
-			//processo original
-            //printf("i antes do fork %d\n", i);
-            //printf("meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
             pid_return = fork();
             indice = i;
-            //children_process[i] = pid_return;
-            
-			
 		} 
         
 	} 
     
-    
         if(pid_return != 0){
-          functionProcesso(number - 1, salto_maximo[number-1], pista);
+          functionProcesso(number - 1, salto_maximo[number-1]);
         }else{
             sleep(1);
-            functionProcesso(indice, salto_maximo[indice], pista);
+            functionProcesso(indice, salto_maximo[indice]);
         }
-        if(getpid() == pid_original_main){
-            printf("Entrou if!!\n");
-
-            wait(&status);
-            printf("Vencedor %d\n", status);
-            kill(0, SIGKILL);
-            //printf("Vencedor -> Lebre %d", indiceLebre);
-    }
-    
-
-        
-        
-	    // printf("meu pid: %d, meu ppid: %d\n", 
-		// getpid(), getppid()); 
-
-	    
     }
     
 
