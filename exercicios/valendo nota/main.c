@@ -46,26 +46,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <pthread.h>
 #include <string.h>
+
+
 
 void* functionThread(void* i){
     long p = (long)i;
     printf("Hello %ld\n", p);
     
 }
-void functionProcesso(int i) {
-    printf("Hello %d\n", i);
+void functionProcesso(int i, int salto_maximo, int pista) {
+    int distancia_percorrida = 0;
+    int salto;
+   
+
+    while (distancia_percorrida < pista)
+    {
+        salto = rand() % (salto_maximo) + 10;
+        distancia_percorrida += salto;
+        printf("Lebre %d -- saltou %dcm \n", i, salto);
+        sleep(1);
+    }
+    //exit(1);
 }
 
 
 int main(int argc, char *argv[ ]) {
-    int pid_original, count = 0;
+    int pid_original, pid_return, count = 0;
     int number = atoi(argv[2]);
     int pista = atoi(argv[3]);
     int parallelismChoice = 0;
     pthread_t Threads[number];
     int indice = 0;
+    int salto_maximo[number];
+    int status;
     /*
     1 -> processo
     2 -> thread
@@ -86,25 +102,48 @@ int main(int argc, char *argv[ ]) {
         pthread_create(&Threads[i], NULL, functionThread, (void*)i);
         }
     }
+
+    
     
     else if(parallelismChoice == 1){
         //processo
-        for (int i = 0; i < number-1; i++) {
+        for(int j = 0; j < number; j++){
+            salto_maximo[j] = rand() % 30 + 1;
+        }
+
+        for (int i = 0; i < number - 1; i++) {
 		if (pid_original == getpid()) { 
 			//processo original
-            
-			fork();
+            //printf("i antes do fork %d\n", i);
+            //printf("meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
+            pid_return = fork();
             indice = i;
+            
+			
 		} else {
-    
+           // printf("Clone:: meu pid: %d, meu ppid: %d\n", getpid(), getppid()); 
+            
 		} 
         
 	} 
-        functionProcesso(indice);
+    
+    
+        if(pid_return != 0){
+            functionProcesso(number - 1, salto_maximo[number-1], pista);
+        }else{
+            functionProcesso(indice, salto_maximo[indice], pista);
+        }
+        
 	    // printf("meu pid: %d, meu ppid: %d\n", 
 		// getpid(), getppid()); 
 
 	    
+    }
+
+    if(getpid() == pid_original){
+        wait(&status);
+        printf("Staus %d\n", WEXITSTATUS(status));
+        return 0;
     }
 
     return 0;
