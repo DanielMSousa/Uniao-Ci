@@ -1,0 +1,3 @@
+Numa lista circular, o último elemento tem como próximo o primeiro elemento da lista, formando um ciclo. 
+A rigor, neste caso, não faz sentido falar em primeiro ou último elemento. 
+A lista pode ser representada por um ponteiro para um elemento inicial.

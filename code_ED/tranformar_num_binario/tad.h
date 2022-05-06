@@ -38,20 +38,3 @@ void print_pilha(Pilha* p){
 	    	printf(">%.0f\n", p->vet[i]);
 	    }	
 }
-
-int main(int argc, char *argv[]) {
-//pilha
-	Pilha* p = criar_pilha();
-	float vetor_retorno;
-	pilha_push(p, 2);
-	printf("Olha inseri 2 na pilha\n");
-	pilha_push(p, 4);
-	pilha_push(p, 6);
-	pilha_push(p, 9);
-	printf("Agora inseri 4, 6 e 9 na pilha\n");
-	print_pilha(p);
-	printf("Removi o primeiro elemento!\n");
-	vetor_retorno = pilha_pop(p);
-	print_pilha(p);
-	return 0;
-}

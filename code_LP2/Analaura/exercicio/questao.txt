@@ -1,0 +1,39 @@
+Montanha Russa concorrente
+Suponha que existam n passageiros e um carro em uma montanha russa em um parque. 
+Os passageiros, repetidamente, esperam para dar uma volta no carro. 
+O carro tem capacidade para C passageiros, com C < n.  O carro só pode partir  quando estiver cheio.
+ Após dar uma volta na montanha russa, cada passageiro passeia pelo parque de diversões e depois retorna à 
+ montanha russa para a próxima volta. O programa a ser desenvolvido deverá utilizar o algoritmo do ticket 
+ apresentado em sala de aula. 
+
+Tanto o carro quanto os passageiros devem ser representados por threads. 
+A implementação das threads dos passageiros e dos carros devem executar funções que se baseiam 
+nos seguintes pseudocódigos:
+
+thread passageiro[i = 1 to n]  {
+    while (!fechouParque) { 
+        entraNoCarro();
+
+  /* Incrementa contador que registra o número de            
+  passageiros transportados pelo carro.  */
+        esperaVoltaAcabar(); 
+        saiDoCarro(); // decrement o contador
+        passeiaPeloParque(); // tempo aleatório
+    }
+}
+
+thread carro {
+    while (existemPassageirosNoParque) {
+        esperaEncher();
+        daUmaVolta();
+        esperaEsvaziar(); 
+        volta++; // Indicador para o fechamento do parque.
+    }
+}
+
+Locks devem ser utilizados para a sincronização do acesso às seções críticas, 
+barreiras devem sincronizar as múltiplas threads. A implementação deverá ser feita em C/C++ 
+utilizando a biblioteca Pthreads ou as threads STD (C++11). A implementação deverá atender às 
+quatro propriedades de uma solução para o problema da seção crítica: exclusão mútua, ausência 
+de deadlock, ausência de atraso desnecessário e entrada eventual. A saída do seu programa deve 
+ser bem planejada, de forma a mostrar o que está acontecendo a cada momento. 
