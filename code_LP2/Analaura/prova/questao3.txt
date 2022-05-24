@@ -1,0 +1,7 @@
+(Questão 3 - 2 pontos)  Crie um arquivo de texto explicando o que você entende 
+por consistência de memória e comente se algo deveria ser modificado no código
+da questão anterior com relação a manutenção da consistência de memória.
+
+Consistência de memória presa por não perder nenhuma informação ou alterar um local de memória errado. 
+Na questão anterior é notório que como as thread são lançadas ao mesmo tempo, a variavel global é altera 
+quase simultaneamente, causando uma alteração nos valores de forma descontrolada.

@@ -4,10 +4,8 @@
 
 
 int main(int argc, char *argv[]) {
-//pilha
+
 	Pilha* p = criar_pilha();
-	//transformar decimal em binario
-    //10
     int value = 6;
     int resto = value;
     int binarioNum;
